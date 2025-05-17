@@ -27,9 +27,10 @@ public:
   ~LinenoiseReader() = default;
   
   /**
-   * @brief Read input with C string
+   * @brief Read input with C++ string
    * @param prompt
    * @return char* to input string or nullptr
+  //  * @note set prompt to string to be consistent with replxx
    */
   char* input(const char* prompt);
   

@@ -127,7 +127,7 @@ int main(int, char **)
     }
 
     std::string command = command_input;
-    free(command_input);
+    LineReaderManager::free_buffer(command_input);
     command_input = nullptr;
 
     if (!command.empty()) {

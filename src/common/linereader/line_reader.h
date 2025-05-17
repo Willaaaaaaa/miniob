@@ -42,6 +42,13 @@ public:
    */
   static bool is_exit_command(const char* cmd, const std::string& history_file);
 
+  /**
+   * @brief Free the buffer allocated by my_readline
+   * @param buffer The buffer allocated by my_readline
+   * @note dealing with alloc-dealloc-mismatch
+   */
+  static void free_buffer(char* buffer);
+
 private:
   static LineReader reader_;
   static bool is_first_call_;

@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/linereader/line_reader.h"
+#include "common/lang/string.h"
 
 namespace common {
 LineReader LineReaderManager::reader_;
@@ -24,7 +25,7 @@ char* LineReaderManager::my_readline(const char* prompt, const std::string& hist
     is_first_call_ = false;
   }
 
-  char* line = reader_.input(prompt);
+  char* line = (char*)reader_.input(prompt);
   if (line == nullptr) {
     return nullptr;
   }
@@ -55,5 +56,15 @@ bool LineReaderManager::is_exit_command(const char* cmd, const std::string& hist
   }
   
   return is_exit;
+}
+
+void LineReaderManager::free_buffer(char* buffer) {
+  if (buffer != nullptr) {
+#if USE_REPLXX
+    delete[] buffer;  // replxx uses new[]
+#else
+    free(buffer);     // linenoise uses malloc
+#endif
+  }
 }
 } // namespace common
