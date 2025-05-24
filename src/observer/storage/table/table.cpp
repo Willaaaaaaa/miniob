@@ -128,6 +128,56 @@ RC Table::create(Db *db, int32_t table_id, const char *path, const char *name, c
   return rc;
 }
 
+RC Table::drop(const char *base_dir) {
+  string  meta_file_path = table_meta_file(base_dir, table_meta_.name());
+  string  data_file_path = table_data_file(base_dir, table_meta_.name());
+
+  LOG_INFO("Begin to drop table %s:%s", base_dir, table_meta_.name());
+  
+  if(::remove(meta_file_path.c_str()) < 0)
+  {
+    LOG_ERROR("Failed to delete meta file. filename = %s, errmsg = %s",
+              meta_file_path.c_str(), strerror(errno));
+    return RC::INTERNAL;
+  }
+  LOG_INFO("Successfully deleted meta file: %s", meta_file_path.c_str());
+
+  if(::remove(data_file_path.c_str()) < 0)
+  {
+    LOG_ERROR("Failed to delete data file. filename = %s, errmsg = %s",
+              data_file_path.c_str(), strerror(errno));
+    return RC::INTERNAL;
+  }
+  LOG_INFO("Successfully deleted data file: %s", data_file_path.c_str());
+
+  for (int i = 0; i < table_meta_.index_num(); i++) {
+    const IndexMeta *index_meta = table_meta_.index(i);
+    string index_file_path = table_index_file(base_dir, table_meta_.name(), index_meta->name());
+    
+    if (::remove(index_file_path.c_str()) < 0) {
+      LOG_ERROR("Failed to delete index file. filename = %s, errmsg = %d:%s",
+                index_file_path.c_str(), errno, strerror(errno));
+      return RC::INTERNAL;
+    }
+    LOG_INFO("Successfully deleted index file: %s", index_file_path.c_str());
+  }
+
+  if(record_handler_!= nullptr)
+  {
+    record_handler_->close();
+    delete record_handler_;
+    record_handler_ =nullptr;
+  }
+
+  for(auto &index : indexes_)
+  {
+    index -> destroy();
+    delete index;
+    index = nullptr;
+  }
+  return RC::SUCCESS;
+}
+
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件

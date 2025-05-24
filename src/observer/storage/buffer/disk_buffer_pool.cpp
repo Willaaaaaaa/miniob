@@ -311,6 +311,11 @@ RC DiskBufferPool::close_file()
   return RC::SUCCESS;
 }
 
+RC DiskBufferPool::remove_file() {
+  bp_manager_.remove_file(file_name_.c_str());
+  return RC::SUCCESS;
+}
+
 RC DiskBufferPool::get_this_page(PageNum page_num, Frame **frame)
 {
   RC rc  = RC::SUCCESS;
@@ -835,6 +840,17 @@ RC BufferPoolManager::create_file(const char *file_name)
 
   close(fd);
   LOG_INFO("Successfully create %s.", file_name);
+  return RC::SUCCESS;
+}
+
+RC BufferPoolManager::remove_file(const char *file_name) {
+  if (close_file(file_name) != RC::SUCCESS) {
+    return RC::FILE_CLOSE;
+  }
+  if (::remove(file_name) != 0) {
+    return RC::FILE_REMOVE;
+  }
+  LOG_INFO("Successfully remove %s.", file_name);
   return RC::SUCCESS;
 }
 

@@ -67,7 +67,7 @@ inline const char *stmt_type_name(StmtType type)
   case StmtType::name: return #name;
     DEFINE_ENUM()
 #undef DEFINE_ENUM_ITEM
-    default: return "unkown";
+    default: return "unknown";
   }
 }
 

@@ -26,6 +26,7 @@ class BplusTreeIndex : public Index
 public:
   BplusTreeIndex() = default;
   virtual ~BplusTreeIndex() noexcept;
+  RC destroy() override;
 
   RC create(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta) override;
   RC open(Table *table, const char *file_name, const IndexMeta &index_meta, const FieldMeta &field_meta) override;

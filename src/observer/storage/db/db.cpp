@@ -176,6 +176,25 @@ RC Db::create_table(const char *table_name, span<const AttrInfoSqlNode> attribut
   return RC::SUCCESS;
 }
 
+RC Db::drop_table(const char *table_name) {
+  Table *table_to_delete = find_table(table_name);
+  if (table_to_delete == nullptr) {
+    LOG_WARN("%s doesn't exist.", table_name);
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }
+  opened_tables_.erase(table_name);
+
+  if (RC rc = table_to_delete->drop(path_.c_str());
+      rc != RC::SUCCESS) {
+    LOG_ERROR("Fail to drop table %s", table_name);
+    return rc;
+  }
+
+  delete table_to_delete;
+  LOG_INFO("Drop table success. table name=%s", table_name);
+  return RC::SUCCESS;
+}
+
 Table *Db::find_table(const char *table_name) const
 {
   unordered_map<string, Table *>::const_iterator iter = opened_tables_.find(table_name);

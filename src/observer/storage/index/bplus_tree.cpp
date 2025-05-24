@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/lower_bound.h"
 #include "common/log/log.h"
 #include "common/global_context.h"
+#include "common/sys/rc.h"
 #include "sql/parser/parse_defs.h"
 #include "storage/buffer/disk_buffer_pool.h"
 
@@ -969,6 +970,15 @@ RC BplusTreeHandler::close()
     disk_buffer_pool_->close_file();
   }
 
+  disk_buffer_pool_ = nullptr;
+  return RC::SUCCESS;
+}
+
+RC BplusTreeHandler::destroy()
+{
+  if (disk_buffer_pool_ != nullptr) {
+    disk_buffer_pool_->remove_file();
+  }
   disk_buffer_pool_ = nullptr;
   return RC::SUCCESS;
 }
